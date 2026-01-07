@@ -1,13 +1,14 @@
-"use client";
+import Providers from "./providers";
 
-import { ApolloProvider } from "@apollo/client/react";
-import client from "@/lib/apolloClient";
-
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html lang="en">
       <body>
-        <ApolloProvider client={client}>{children}</ApolloProvider>
+        <Providers>{children}</Providers>
       </body>
     </html>
   );
