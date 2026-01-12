@@ -1,26 +1,372 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
+/* =========================
+   DESIGN TOKENS (CSS VARS)
+   ========================= */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f5f5f7;
+  --surface: #ffffff;
+  --foreground: #111827;
+  --muted: #6b7280;
+
+  --accent: #2563eb;
+  --accent-soft: rgba(37, 99, 235, 0.12);
+  --border: #e5e7eb;
+
+  --radius-sm: 0.5rem;
+  --radius: 1rem;
+
+  --shadow-xs: 0 1px 2px rgba(0,0,0,0.05);
+  --shadow-sm: 0 2px 8px rgba(0,0,0,0.08);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.1);
+  --shadow-lg: 0 8px 24px rgba(0,0,0,0.15);
+  --shadow-xl: 0 12px 36px rgba(0,0,0,0.2);
 }
 
-inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
+/* =========================
+   DARK MODE
+   ========================= */
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #0b0f19;
+    --surface: #1f2937;
+    --foreground: #f9fafb;
+    --muted: #9ca3af;
+    --border: #374151;
+
+    --shadow-xs: 0 1px 2px rgba(0,0,0,0.3);
+    --shadow-sm: 0 2px 8px rgba(0,0,0,0.5);
+    --shadow-md: 0 4px 16px rgba(0,0,0,0.6);
+    --shadow-lg: 0 8px 24px rgba(0,0,0,0.7);
+    --shadow-xl: 0 12px 36px rgba(0,0,0,0.8);
   }
 }
 
+/* =========================
+   BASE RESET
+   ========================= */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html, body {
+  width: 100%;
+  min-height: 100%;
+}
+
 body {
-  background: var(--background);
+  margin: 0;
+  background-color: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* =========================
+   TYPOGRAPHY
+   ========================= */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  line-height: 1.2;
+}
+
+h1 { font-size: 2.25rem; }
+h2 { font-size: 1.75rem; }
+h3 { font-size: 1.5rem; }
+h4 { font-size: 1.25rem; }
+
+p {
+  margin-bottom: 1rem;
+  color: var(--foreground);
+}
+
+small, .text-muted {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+/* =========================
+   LINKS
+   ========================= */
+a {
+  color: var(--accent);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+a:hover {
+  text-decoration: underline;
+  color: darken(var(--accent), 10%);
+}
+
+/* =========================
+   BUTTONS
+   ========================= */
+button {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 0.6rem 1.25rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease, background 0.15s ease;
+}
+
+button:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  opacity: 0.95;
+  background: #1d4ed8; /* slightly darker accent on hover */
+}
+
+button:active {
+  transform: translateY(0);
+  box-shadow: var(--shadow-sm);
+}
+
+/* =========================
+   FORMS
+   ========================= */
+input, textarea, select {
+  width: 100%;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--foreground);
+  border-radius: var(--radius-sm);
+  padding: 0.65rem 0.75rem;
+  font-size: 0.95rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--muted);
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px var(--accent-soft);
+}
+
+/* =========================
+   MEDIA
+   ========================= */
+img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--radius-sm);
+}
+
+/* =========================
+   CARDS & COMPONENTS
+   ========================= */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.card:hover {
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-3px);
+}
+
+/* Badge Component */
+.badge {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--radius-sm);
+  background-color: var(--accent-soft);
+  color: var(--accent);
+  transition: background 0.2s ease;
+}
+
+.badge.alive { background-color: rgba(34,197,94,0.15); color: #22c55e; }
+.badge.dead { background-color: rgba(239,68,68,0.15); color: #ef4444; }
+.badge.unknown { background-color: rgba(107,114,128,0.15); color: #6b7280; }
+
+/* =========================
+   CONTAINERS
+   ========================= */
+.container {
+  max-width: 1280px;
+  margin-inline: auto;
+  padding-inline: 1.5rem;
+}
+
+/* =========================
+   UTILITIES
+   ========================= */
+.flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.scrollable {
+  overflow-y: auto;
+  max-height: 18rem;
+}
+
+.transition-smooth {
+  transition: all 0.2s ease-in-out;
+}
+/* =========================
+   EPISODES LIST
+   ========================= */
+.episode-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem; /* space between episodes */
+  max-height: 18rem; /* scrollable height */
+  overflow-y: auto;
+  padding-right: 0.25rem;
+}
+
+.episode-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.episode-list::-webkit-scrollbar-thumb {
+  background-color: var(--muted);
+  border-radius: var(--radius-sm);
+}
+
+.episode-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--surface);
+  color: var(--foreground);
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-xs);
+  transition: all 0.2s ease-in-out;
+  cursor: default;
+}
+
+.episode-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+  background: var(--surface);
+}
+
+.episode-name {
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+.episode-code {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+/* =========================
+   OPTIONAL BADGES FOR SEASONS
+   ========================= */
+.episode-badge {
+  background-color: var(--accent-soft);
+  color: var(--accent);
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 0.15rem 0.4rem;
+  border-radius: var(--radius-sm);
+}
+/* =========================
+   CHARACTER DETAIL CARD
+   ========================= */
+.character-card {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 2rem;
+  max-width: 700px;
+  width: 100%;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.character-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+}
+
+/* =========================
+   CHARACTER HEADER (IMAGE + INFO)
+   ========================= */
+.character-header {
+  display: flex;
+  gap: 1.5rem;
+  align-items: center;
+}
+
+.character-image {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+.character-status-badge {
+  position: absolute;
+  top: -0.25rem;
+  right: -0.25rem;
+  padding: 0.3rem 0.6rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+}
+
+.character-status-badge.alive { background-color: rgba(34,197,94,0.15); color: #22c55e; }
+.character-status-badge.dead { background-color: rgba(239,68,68,0.15); color: #ef4444; }
+.character-status-badge.unknown { background-color: rgba(107,114,128,0.15); color: #6b7280; }
+
+/* =========================
+   CHARACTER INFO
+   ========================= */
+.character-info h1 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.character-info p {
+  font-size: 0.95rem;
+  color: var(--muted);
+  margin: 0.2rem 0;
+}
+
+.character-info .info-box {
+  display: inline-block;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.25rem 0.6rem;
+  border-radius: var(--radius-sm);
+  margin-right: 0.5rem;
 }

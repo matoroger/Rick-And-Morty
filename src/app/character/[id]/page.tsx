@@ -1,35 +1,58 @@
-"use client";
-
-import { use } from "react"; // React 18 / Next 13+
 import CharacterDetail from "@/components/CharacterDetail";
-import { GET_CHARACTER } from "@/graphql/queries";
-import { useQuery } from "@apollo/client/react";
 
-type Episode = { id: string; name: string };
 type Character = {
-  id: string;
+  id: number;
   name: string;
+  image: string;
   status: string;
   species: string;
-  image: string;
-  episode: Episode[];
+  gender: string;
+  origin: { name: string };
+  location: { name: string };
+  episode: { id: string; name: string; episode: string }[]; // Make sure episodes are included
 };
-type CharacterData = { character: Character };
 
 type PageProps = {
-  params: Promise<{ id: string }>; // client component receives Promise
+  params: Promise<{
+    id: string;
+  }>;
 };
 
-export default function CharacterPage({ params }: PageProps) {
-  const { id } = use(params); // unwrap Promise
+export default async function CharacterDetailPage({ params }: PageProps) {
+  const { id } = await params;
+  const character = await getCharacter(id);
 
-  const { data, loading, error } = useQuery<CharacterData>(GET_CHARACTER, {
-    variables: { id },
-  });
+  return (
+    <div className="min-h-screen bg-zinc-900 text-white flex justify-center items-start px-4 py-12">
+      {/* Use the CharacterDetail component here */}
+      <CharacterDetail character={character} />
+    </div>
+  );
+}
 
-  if (loading) return <p>Loading character...</p>;
-  if (error || !data?.character)
-    return <p>Failed to fetch character. Please try again later.</p>;
+/* =========================
+   DATA FETCH
+   ========================= */
+async function getCharacter(id: string): Promise<Character> {
+  const res = await fetch(
+    `https://rickandmortyapi.com/api/character/${id}`,
+    { cache: "no-store" }
+  );
 
-  return <CharacterDetail character={data.character} />;
+  if (!res.ok) {
+    throw new Error(`Failed to fetch character ${id}`);
+  }
+
+  const data = await res.json();
+
+  // Fetch episodes
+  const episodes = await Promise.all(
+    data.episode.map(async (url: string) => {
+      const epRes = await fetch(url, { cache: "no-store" });
+      if (!epRes.ok) throw new Error("Failed to fetch episode");
+      return epRes.json();
+    })
+  );
+
+  return { ...data, episode: episodes };
 }
