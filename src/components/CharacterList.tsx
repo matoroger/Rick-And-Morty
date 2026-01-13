@@ -8,6 +8,7 @@ type Character = {
   id: string;
   name: string;
   species: string;
+  status: "Alive" | "Dead" | "unknown";
   image: string;
 };
 
@@ -17,31 +18,82 @@ type CharactersData = {
   };
 };
 
-export default function CharacterList() {
+/* ✅ ADD PROPS TYPE */
+type CharacterListProps = {
+  search: string;
+};
+
+export default function CharacterList({ search }: CharacterListProps) {
   const { data, loading, error } = useQuery<CharactersData>(GET_CHARACTERS);
 
-  if (loading) return <p>Loading characters...</p>;
-  if (error || !data) return <p>Failed to load characters</p>;
+  if (loading)
+    return (
+      <p className="text-center mt-10 text-zinc-400">
+        Loading characters...
+      </p>
+    );
+
+  if (error || !data)
+    return (
+      <p className="text-center mt-10 text-red-500">
+        Failed to load characters
+      </p>
+    );
+
+  /* ✅ FILTER CHARACTERS */
+  const filteredCharacters = data.characters.results.filter((char) =>
+    char.name.toLowerCase().includes(search.toLowerCase())
+  );
 
   return (
-    <div style={{ display: "flex", flexWrap: "wrap", gap: "20px" }}>
-      {data.characters.results.map((char) => (
+    <div className="flex flex-wrap justify-center gap-6 px-4 py-10">
+      {filteredCharacters.map((char) => (
         <Link key={char.id} href={`/character/${char.id}`}>
-          <div
-            style={{
-              border: "1px solid #ccc",
-              padding: "10px",
-              cursor: "pointer",
-              width: "150px",
-              textAlign: "center",
-            }}
-          >
-            <img src={char.image} alt={char.name} width={150} />
-            <h3>{char.name}</h3>
-            <p>{char.species}</p>
+          <div className="group w-40 bg-white dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-xl shadow-md hover:shadow-xl transition-all duration-200 hover:-translate-y-1 cursor-pointer overflow-hidden">
+
+            {/* IMAGE + STATUS */}
+            <div className="relative w-full h-40">
+              <img
+                src={char.image}
+                alt={char.name}
+                className="w-full h-full object-cover"
+              />
+
+              <span
+                className={`absolute top-2 right-2 px-2 py-0.5 text-xs rounded-full font-medium backdrop-blur
+                  ${
+                    char.status === "Alive"
+                      ? "bg-green-500/20 text-green-400"
+                      : char.status === "Dead"
+                      ? "bg-red-500/20 text-red-400"
+                      : "bg-gray-500/20 text-gray-300"
+                  }
+                `}
+              >
+                {char.status}
+              </span>
+            </div>
+
+            {/* INFO */}
+            <div className="p-3 text-center">
+              <h3 className="font-semibold text-sm text-gray-800 dark:text-white truncate">
+                {char.name}
+              </h3>
+              <p className="text-xs text-gray-500 dark:text-gray-400">
+                {char.species}
+              </p>
+            </div>
+
           </div>
         </Link>
       ))}
+
+      {/* ✅ EMPTY STATE */}
+      {filteredCharacters.length === 0 && (
+        <p className="text-center text-gray-400 mt-10">
+          No characters found
+        </p>
+      )}
     </div>
   );
 }

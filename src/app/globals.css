@@ -1,6 +1,22 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+@layer utilities {
+   @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-fade-in-up {
+    animation: fadeInUp 0.6s ease-out forwards;
+  }
+}
 
 /* =========================
    DESIGN TOKENS (CSS VARS)
@@ -230,13 +246,13 @@ img {
   transition: all 0.2s ease-in-out;
 }
 /* =========================
-   EPISODES LIST
+   EPISODES LIST WITH SEASON BADGES
    ========================= */
 .episode-list {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem; /* space between episodes */
-  max-height: 18rem; /* scrollable height */
+  gap: 0.5rem;
+  max-height: 18rem;
   overflow-y: auto;
   padding-right: 0.25rem;
 }
@@ -250,17 +266,20 @@ img {
   border-radius: var(--radius-sm);
 }
 
+/* Episode Card */
 .episode-card {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding: 0.65rem 1rem;
   background: var(--surface);
   color: var(--foreground);
-  padding: 0.75rem 1rem;
   border-radius: var(--radius-sm);
   box-shadow: var(--shadow-xs);
+  font-size: 0.9rem;
+  font-weight: 500;
   transition: all 0.2s ease-in-out;
-  cursor: default;
+  cursor: pointer;
 }
 
 .episode-card:hover {
@@ -269,27 +288,37 @@ img {
   background: var(--surface);
 }
 
+/* Episode Text */
 .episode-name {
   font-weight: 500;
-  font-size: 0.95rem;
 }
 
 .episode-code {
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   color: var(--muted);
 }
 
 /* =========================
-   OPTIONAL BADGES FOR SEASONS
+   SEASON BADGES
    ========================= */
 .episode-badge {
-  background-color: var(--accent-soft);
-  color: var(--accent);
   font-size: 0.7rem;
   font-weight: 600;
   padding: 0.15rem 0.4rem;
   border-radius: var(--radius-sm);
+  text-transform: uppercase;
+  margin-left: 0.5rem;
+  white-space: nowrap;
 }
+
+/* Color-code by season */
+.season-1 { background-color: rgba(37, 99, 235, 0.15); color: #2563eb; }
+.season-2 { background-color: rgba(16, 185, 129, 0.15); color: #10b981; }
+.season-3 { background-color: rgba(234, 179, 8, 0.15); color: #eab308; }
+.season-4 { background-color: rgba(239, 68, 68, 0.15); color: #ef4444; }
+.season-5 { background-color: rgba(168, 85, 247, 0.15); color: #a855f7; }
+.season-unknown { background-color: rgba(107, 114, 128, 0.15); color: #6b7280; }
+
 /* =========================
    CHARACTER DETAIL CARD
    ========================= */
@@ -369,4 +398,45 @@ img {
   padding: 0.25rem 0.6rem;
   border-radius: var(--radius-sm);
   margin-right: 0.5rem;
+}
+/* Floating Search Bar Styles */
+.floating-search {
+  width: 100%;
+  max-width: 500px;
+  margin: 0 auto 2rem;
+  position: relative;
+}
+
+.floating-search input {
+  width: 100%;
+  padding: 14px 50px 14px 45px; /* space for icon */
+  font-size: 16px;
+  border: none;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.8);
+  color: #171717;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  backdrop-filter: blur(8px);
+  transition: all 0.3s ease;
+}
+
+.floating-search input::placeholder {
+  color: #888;
+}
+
+.floating-search input:focus {
+  outline: none;
+  box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4);
+  border: 1px solid #3b82f6;
+}
+
+.floating-search svg {
+  position: absolute;
+  left: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  color: #888;
+  pointer-events: none;
 }
