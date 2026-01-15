@@ -4,6 +4,13 @@ import { useQuery } from "@apollo/client/react";
 import Link from "next/link";
 import { GET_CHARACTERS } from "@/graphql/queries";
 
+/* ✅ ADD SORT TYPE (matches HomePage) */
+export type SortOption =
+  | "name-asc"
+  | "name-desc"
+  | "status"
+  | "species";
+
 type Character = {
   id: string;
   name: string;
@@ -18,12 +25,13 @@ type CharactersData = {
   };
 };
 
-/* ✅ ADD PROPS TYPE */
+/* ✅ UPDATE PROPS */
 type CharacterListProps = {
   search: string;
+  sort: SortOption;
 };
 
-export default function CharacterList({ search }: CharacterListProps) {
+export default function CharacterList({ search, sort }: CharacterListProps) {
   const { data, loading, error } = useQuery<CharactersData>(GET_CHARACTERS);
 
   if (loading)
@@ -40,10 +48,40 @@ export default function CharacterList({ search }: CharacterListProps) {
       </p>
     );
 
-  /* ✅ FILTER CHARACTERS */
-  const filteredCharacters = data.characters.results.filter((char) =>
-    char.name.toLowerCase().includes(search.toLowerCase())
-  );
+  /* ✅ FILTER + SORT CHARACTERS */
+  const filteredCharacters = data.characters.results
+    .filter((char) =>
+      char.name.toLowerCase().includes(search.toLowerCase())
+    )
+   .sort((a, b) => {
+  switch (sort) {
+    case "name-asc":
+      return (a.name ?? "").localeCompare(b.name ?? "");
+
+    case "name-desc":
+      return (b.name ?? "").localeCompare(a.name ?? "");
+
+    case "status": {
+      const statusOrder: Record<string, number> = {
+        Alive: 0,
+        Dead: 1,
+        unknown: 2,
+      };
+
+      return (
+        (statusOrder[a.status ?? "unknown"] ?? 2) -
+        (statusOrder[b.status ?? "unknown"] ?? 2)
+      );
+    }
+
+    case "species":
+      return (a.species ?? "").localeCompare(b.species ?? "");
+
+    default:
+      return 0;
+  }
+});
+
 
   return (
     <div className="flex flex-wrap justify-center gap-6 px-4 py-10">
