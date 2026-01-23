@@ -360,6 +360,9 @@ img {
   box-shadow: var(--shadow-sm);
 }
 
+/* =========================
+   CHARACTER STATUS BADGE
+   ========================= */
 .character-status-badge {
   position: absolute;
   top: -0.25rem;
@@ -368,11 +371,24 @@ img {
   font-size: 0.7rem;
   font-weight: 600;
   border-radius: var(--radius-sm);
+  text-transform: capitalize; /* makes first letter uppercase */
 }
 
-.character-status-badge.alive { background-color: rgba(34,197,94,0.15); color: #22c55e; }
-.character-status-badge.dead { background-color: rgba(239,68,68,0.15); color: #ef4444; }
-.character-status-badge.unknown { background-color: rgba(107,114,128,0.15); color: #6b7280; }
+/* Status colors */
+.character-status-badge.alive {
+  background-color: rgba(34,197,94,0.15);
+  color: #22c55e;
+}
+
+.character-status-badge.dead {
+  background-color: rgba(239,68,68,0.15);
+  color: #ef4444;
+}
+
+.character-status-badge.unknown {
+  background-color: rgba(107,114,128,0.15);
+  color: #6b7280;
+}
 
 /* =========================
    CHARACTER INFO
@@ -399,6 +415,7 @@ img {
   border-radius: var(--radius-sm);
   margin-right: 0.5rem;
 }
+
 /* Floating Search Bar Styles */
 .floating-search {
   width: 100%;
@@ -546,4 +563,306 @@ img {
   height: 16px;
   color: #9ca3af;
   pointer-events: none;
+}
+/* =========================
+   EPISODE DETAIL PAGE
+   ========================= */
+
+/* Page spacing & typography */
+.max-w-6xl h1 {
+  letter-spacing: -0.025em;
+}
+
+.max-w-6xl > p {
+  font-size: 0.95rem;
+}
+
+/* Episode header separation */
+.max-w-6xl > p:last-of-type {
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Section title */
+.max-w-6xl h2 {
+  letter-spacing: -0.02em;
+}
+
+/* =========================
+   CHARACTER GRID CARDS
+   ========================= */
+
+.max-w-6xl a {
+  display: flex;             /* use flex to align image and content */
+  align-items: center;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.04),
+    rgba(255, 255, 255, 0.01)
+  );
+  border-radius: 0.9rem;
+  overflow: hidden;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.35);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  padding: 0.5rem;           /* spacing inside card */
+}
+
+.max-w-6xl a:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 18px 36px rgba(0, 0, 0, 0.55);
+}
+
+/* Character image */
+.max-w-6xl a img {
+  width: 80px;               /* fixed smaller width */
+  height: 80px;              /* keep square aspect */
+  object-fit: cover;
+  border-radius: 0.5rem;
+  margin-right: 0.75rem;
+  flex-shrink: 0;            /* prevents shrinking on small screens */
+}
+
+/* Card content */
+.max-w-6xl a > div {
+  flex: 1;                   /* content takes remaining space */
+}
+
+.max-w-6xl a p:first-child {
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.max-w-6xl a p:last-child {
+  font-size: 0.75rem;
+  opacity: 0.75;
+}
+
+/* =========================
+   RESPONSIVE POLISH
+   ========================= */
+
+@media (max-width: 640px) {
+  .max-w-6xl a {
+    flex-direction: column;  /* stack image above text */
+    align-items: flex-start;
+  }
+
+  .max-w-6xl a img {
+    width: 100%;             /* full width on small screens */
+    height: auto;            /* auto height */
+    margin-right: 0;
+    margin-bottom: 0.5rem;   /* spacing below image */
+  }
+
+  .max-w-6xl a > div {
+    width: 100%;             /* content full width */
+  }
+
+  .max-w-6xl h1 {
+    font-size: 1.6rem;
+  }
+
+  .max-w-6xl h2 {
+    font-size: 1.25rem;
+  }
+}
+.character-status-badge {
+  position: absolute; /* absolutely positioned inside the parent */
+  top: 5px;
+  right: 5px;
+  padding: 0.3rem 0.6rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  border-radius: 9999px;
+  text-transform: capitalize;
+  background-color: rgba(34,197,94,0.15); /* default color for alive */
+  color: #22c55e;
+}
+
+/* Specific status colors */
+.character-status-badge.alive {
+  background-color: rgba(34,197,94,0.15);
+  color: #22c55e;
+}
+
+.character-status-badge.dead {
+  background-color: rgba(239,68,68,0.15);
+  color: #ef4444;
+}
+
+.character-status-badge.unknown {
+  background-color: rgba(107,114,128,0.15);
+  color: #6b7280;
+}
+/* -------------------- */
+/* Load More Button Styles */
+/* -------------------- */
+.load-more-btn {
+  padding: 10px 24px;
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background-color: #111;  /* dark gray */
+  color: #fff;
+}
+
+.load-more-btn:hover:not(:disabled) {
+  opacity: 0.85;
+  transform: translateY(-2px); /* subtle lift */
+}
+
+.load-more-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Optional: dark mode */
+@media (prefers-color-scheme: dark) {
+  .load-more-btn {
+    background-color: #fff;
+    color: #111;
+  }
+
+  .load-more-btn:hover:not(:disabled) {
+    opacity: 0.9;
+  }
+}
+/* ===============================
+   FILTERS – RESPONSIVE & ELEGANT
+================================ */
+
+/* Wrapper centers the filter */
+.filter-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 2rem;
+  padding: 0 1rem;
+}
+
+/* Card container */
+.filter-card {
+  width: 100%;
+  max-width: 420px; /* mobile width */
+  background: var(--background, #3945ca);
+  border: 1px solid #154ec0;
+  border-radius: 16px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* Shared input + select */
+.filter-control {
+  width: 100%;
+  padding: 10px 14px;
+  padding-left: 40px;
+  font-size: 14px;
+  border-radius: 10px;
+  border: 1px solid #236ede;
+  background: transparent;
+  outline: none;
+  transition: border 0.2s ease, box-shadow 0.2s ease;
+}
+
+.filter-select {
+  padding-left: 14px;
+  padding-right: 40px;
+}
+
+/* Focus state */
+.filter-control:focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25);
+}
+
+/* Icons */
+.filter-icon-left,
+.filter-icon-right {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px;
+  color: #9ca3af;
+  pointer-events: none;
+}
+
+.filter-icon-left {
+  left: 12px;
+}
+
+.filter-icon-right {
+  right: 12px;
+}
+
+/* ===============================
+   TABLET (≥768px)
+================================ */
+@media (min-width: 768px) {
+  .filter-card {
+    max-width: 640px;
+    flex-direction: row;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .filter-card > div {
+    flex: 1;
+  }
+}
+
+/* ===============================
+   DESKTOP (≥1024px)
+================================ */
+@media (min-width: 1024px) {
+  .filter-card {
+    max-width: 720px;
+  }
+}
+/* ================================
+   SELECT DROPDOWN COLORS
+================================ */
+
+/* Closed select (the input itself) */
+.filter-select {
+  color: #e5e7eb;               /* text */
+  background-color: #020617;    /* dark bg */
+}
+
+/* Dropdown list (options) */
+.filter-select option {
+  background-color: #020617;    /* dark dropdown */
+  color: #e5e7eb;               /* light text */
+}
+
+/* Hover / selected option */
+.filter-select option:checked,
+.filter-select option:hover {
+  background-color: #2563eb;    /* elegant blue */
+  color: #ffffff;
+}
+/* ================================
+   SELECT DROPDOWN COLORS
+================================ */
+
+/* Closed select (the input itself) */
+.filter-select {
+  color: #e5e7eb;               /* text */
+  background-color: #020617;    /* dark bg */
+}
+
+/* Dropdown list (options) */
+.filter-select option {
+  background-color: #020617;    /* dark dropdown */
+  color: #e5e7eb;               /* light text */
+}
+
+/* Hover / selected option */
+.filter-select option:checked,
+.filter-select option:hover {
+  background-color: #2563eb;    /* elegant blue */
+  color: #ffffff;
 }

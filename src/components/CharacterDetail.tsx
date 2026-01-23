@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import EpisodeList from "@/app/character/[id]/EpisodeList";
+import EpisodeList from "@/components/EpisodeList";
 
 type Episode = { id: string; name: string; episode: string };
 
