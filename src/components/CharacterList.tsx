@@ -4,6 +4,8 @@ import { NetworkStatus } from "@apollo/client";
 import { useQuery } from "@apollo/client/react";
 import Link from "next/link";
 import { GET_CHARACTERS } from "@/graphql/queries";
+import CharacterSkeleton from "@/components/CharacterSkeleton";
+import ErrorState from "@/components/ErrorState";
 
 /* SORT TYPE */
 export type SortOption =
@@ -35,29 +37,25 @@ type CharacterListProps = {
   sort: SortOption;
 };
 
-/* ✅ Skeleton Card Component */
-function CharacterSkeleton() {
-  return (
-    <div className="w-40 rounded-xl bg-zinc-200 dark:bg-zinc-800 animate-pulse">
-      <div className="h-40 bg-zinc-300 dark:bg-zinc-700 rounded-t-xl" />
-      <div className="p-3 space-y-2">
-        <div className="h-3 bg-zinc-300 dark:bg-zinc-700 rounded" />
-        <div className="h-2 bg-zinc-300 dark:bg-zinc-700 rounded w-2/3" />
-      </div>
-    </div>
-  );
-}
-
 export default function CharacterList({ search, sort }: CharacterListProps) {
-  const { data, loading, error, fetchMore, networkStatus } =
-    useQuery<CharactersData>(GET_CHARACTERS, {
-      variables: { page: 1 },
-      notifyOnNetworkStatusChange: true,
-    });
+  const {
+  data,
+  loading,
+  error,
+  fetchMore,
+  networkStatus,
+  refetch,
+} = useQuery<CharactersData>(GET_CHARACTERS, {
+  variables: { page: 1 },
+  notifyOnNetworkStatusChange: true,
+});
+
+
+  /* 👇 ADD THIS */
+  const isFetchingMore = networkStatus === NetworkStatus.fetchMore;
 
   /* FIRST LOAD ONLY */
   if (loading && !data) {
-    // show 8 skeleton cards
     return (
       <div className="flex flex-wrap justify-center gap-6 px-4 py-10">
         {Array.from({ length: 8 }).map((_, idx) => (
@@ -68,12 +66,14 @@ export default function CharacterList({ search, sort }: CharacterListProps) {
   }
 
   if (error || !data) {
-    return (
-      <p className="text-center mt-10 text-red-500">
-        Failed to load characters
-      </p>
-    );
-  }
+  return (
+    <ErrorState
+      message="Failed to load characters. Please check your connection."
+      onRetry={() => refetch()}
+    />
+  );
+}
+
 
   /* FILTER + SORT */
   const filteredCharacters = data.characters.results
@@ -108,7 +108,6 @@ export default function CharacterList({ search, sort }: CharacterListProps) {
         {filteredCharacters.map((char) => (
           <Link key={char.id} href={`/character/${char.id}`}>
             <div className="group w-40 bg-white dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-xl shadow-md hover:shadow-xl transition-all duration-200 hover:-translate-y-1 cursor-pointer overflow-hidden">
-
               {/* IMAGE */}
               <div className="relative w-full h-40">
                 <img
@@ -146,6 +145,12 @@ export default function CharacterList({ search, sort }: CharacterListProps) {
           </Link>
         ))}
 
+        {/* 👇 LOAD MORE SKELETONS */}
+        {isFetchingMore &&
+          Array.from({ length: 4 }).map((_, idx) => (
+            <CharacterSkeleton key={`load-more-${idx}`} />
+          ))}
+
         {filteredCharacters.length === 0 && (
           <p className="text-center text-gray-400 mt-10">
             No characters found
@@ -157,7 +162,7 @@ export default function CharacterList({ search, sort }: CharacterListProps) {
       {data.characters.info.next && (
         <div className="w-full flex justify-center mb-10">
           <button
-            disabled={networkStatus === NetworkStatus.fetchMore}
+            disabled={isFetchingMore}
             onClick={() =>
               fetchMore({
                 variables: {
@@ -180,9 +185,7 @@ export default function CharacterList({ search, sort }: CharacterListProps) {
             }
             className="load-more-btn"
           >
-            {networkStatus === NetworkStatus.fetchMore
-              ? "Loading..."
-              : "Load More"}
+            {isFetchingMore ? "Loading..." : "Load More"}
           </button>
         </div>
       )}
