@@ -6,6 +6,7 @@ import Link from "next/link";
 import { GET_CHARACTERS } from "@/graphql/queries";
 import CharacterSkeleton from "@/components/CharacterSkeleton";
 import ErrorState from "@/components/ErrorState";
+import EmptyState from "@/components/EmptyState";
 
 /* SORT TYPE */
 export type SortOption =
@@ -152,10 +153,12 @@ export default function CharacterList({ search, sort }: CharacterListProps) {
           ))}
 
         {filteredCharacters.length === 0 && (
-          <p className="text-center text-gray-400 mt-10">
-            No characters found
-          </p>
-        )}
+  <EmptyState
+    title="No characters found"
+    description="Try a different name or clear your filters."
+  />
+)}
+
       </div>
 
       {/* LOAD MORE BUTTON */}
