@@ -1,13 +1,25 @@
-import CharacterListClient, { SortOption } from "./CharacterListClient";
+import CharacterListClient from "@/components/CharacterListClient";
+import { SortOption, Character } from "@/components/CharacterListClient";
 
-type CharacterListProps = {
+type Props = {
+  initialCharacters: Character[];
+  initialNextPage: number | null;
   search: string;
   sort: SortOption;
 };
 
 export default function CharacterList({
+  initialCharacters,
+  initialNextPage,
   search,
   sort,
-}: CharacterListProps) {
-  return <CharacterListClient search={search} sort={sort} />;
+}: Props) {
+  return (
+    <CharacterListClient
+      initialCharacters={initialCharacters}
+      initialNextPage={initialNextPage}
+      search={search}
+      sort={sort}
+    />
+  );
 }

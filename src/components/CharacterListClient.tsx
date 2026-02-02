@@ -7,6 +7,7 @@ import { GET_CHARACTERS } from "@/graphql/queries";
 import CharacterSkeleton from "@/components/CharacterSkeleton";
 import ErrorState from "@/components/ErrorState";
 import EmptyState from "@/components/EmptyState";
+import { useEffect, useState } from "react";
 
 /* SORT TYPE */
 export type SortOption = "name-asc" | "name-desc" | "status" | "species";
@@ -28,38 +29,35 @@ export type CharactersData = {
 };
 
 type CharacterListProps = {
+  initialCharacters: Character[];
+  initialNextPage: number | null;
   search: string;
   sort: SortOption;
 };
 
 export default function CharacterListClient({
+  initialCharacters,
+  initialNextPage,
   search,
   sort,
 }: CharacterListProps) {
+
+  // SSR DATA STATE
+  const [characters, setCharacters] = useState<Character[]>(initialCharacters);
+  const [nextPage, setNextPage] = useState<number | null>(initialNextPage);
+
   const {
-    data,
-    loading,
-    error,
     fetchMore,
     networkStatus,
     refetch,
+    error,
   } = useQuery<CharactersData>(GET_CHARACTERS, {
     variables: { page: 1 },
     notifyOnNetworkStatusChange: true,
+    skip: true, // ⛔ prevent initial client fetch (SSR already has data)
   });
 
   const isFetchingMore = networkStatus === NetworkStatus.fetchMore;
-
-  /* INITIAL LOADING STATE */
-  if (loading && !data) {
-    return (
-      <div className="flex flex-wrap justify-center gap-6 px-4 py-10">
-        {Array.from({ length: 8 }).map((_, idx) => (
-          <CharacterSkeleton key={idx} />
-        ))}
-      </div>
-    );
-  }
 
   /* ERROR STATE */
   if (error) {
@@ -71,10 +69,8 @@ export default function CharacterListClient({
     );
   }
 
-  if (!data?.characters) return null;
-
   /* FILTER + SORT */
-  const filteredCharacters = data.characters.results
+  const filteredCharacters = characters
     .filter((char) =>
       char.name.toLowerCase().includes(search.toLowerCase())
     )
@@ -106,7 +102,6 @@ export default function CharacterListClient({
         {filteredCharacters.map((char) => (
           <Link key={char.id} href={`/character/${char.id}`}>
             <div className="group w-40 bg-white dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-xl shadow-md hover:shadow-xl transition-all duration-200 hover:-translate-y-1 cursor-pointer overflow-hidden">
-              {/* IMAGE */}
               <div className="relative w-full h-40">
                 <img
                   src={char.image}
@@ -114,7 +109,6 @@ export default function CharacterListClient({
                   className="w-full h-full object-cover"
                 />
 
-                {/* STATUS BADGE */}
                 <span
                   className={`absolute top-2 right-2 px-2 py-0.5 text-xs rounded-full font-medium backdrop-blur
                     ${
@@ -130,7 +124,6 @@ export default function CharacterListClient({
                 </span>
               </div>
 
-              {/* INFO */}
               <div className="p-3 text-center">
                 <h3 className="font-semibold text-sm text-gray-800 dark:text-white truncate">
                   {char.name}
@@ -143,13 +136,6 @@ export default function CharacterListClient({
           </Link>
         ))}
 
-        {/* LOAD MORE SKELETONS */}
-        {isFetchingMore &&
-          Array.from({ length: 4 }).map((_, idx) => (
-            <CharacterSkeleton key={`load-more-${idx}`} />
-          ))}
-
-        {/* EMPTY STATE */}
         {filteredCharacters.length === 0 && (
           <EmptyState
             title="No characters found"
@@ -159,31 +145,24 @@ export default function CharacterListClient({
       </div>
 
       {/* LOAD MORE BUTTON */}
-      {data.characters.info.next && (
+      {nextPage && (
         <div className="w-full flex justify-center mb-10">
           <button
             disabled={isFetchingMore}
-            onClick={() => {
-              if (!data.characters.info.next) return;
+            onClick={async () => {
+              if (!nextPage) return;
 
-              fetchMore({
-                variables: { page: data.characters.info.next },
-                updateQuery: (prev, { fetchMoreResult }) => {
-                  if (!fetchMoreResult?.characters || !prev?.characters) {
-                    return prev;
-                  }
-
-                  return {
-                    characters: {
-                      info: fetchMoreResult.characters.info,
-                      results: [
-                        ...prev.characters.results,
-                        ...fetchMoreResult.characters.results,
-                      ],
-                    },
-                  };
-                },
+              const { data } = await fetchMore({
+                variables: { page: nextPage },
               });
+
+              if (data?.characters) {
+                setCharacters((prev) => [
+                  ...prev,
+                  ...data.characters.results,
+                ]);
+                setNextPage(data.characters.info.next);
+              }
             }}
             className="load-more-btn"
           >
