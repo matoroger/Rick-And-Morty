@@ -1,12 +1,12 @@
 "use client";
 
 import { ApolloProvider } from "@apollo/client/react";
-import client from "@/lib/apolloClient";
+import { apolloClient } from "@/lib/apolloClient"; // ✅ named import
 
 export default function Providers({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return <ApolloProvider client={client}>{children}</ApolloProvider>;
+  return <ApolloProvider client={apolloClient}>{children}</ApolloProvider>;
 }
