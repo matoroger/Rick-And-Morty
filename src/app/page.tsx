@@ -1,5 +1,8 @@
-import CharacterListClient from "@/components/CharacterListClient";
-import { SortOption } from "@/components/CharacterListClient";
+import CharacterListClient, {
+  SortOption,
+  Character,
+} from "@/components/CharacterListClient";
+import CharacterGridSSR from "@/components/CharacterGridSSR";
 
 type SearchParams = {
   search?: string;
@@ -8,27 +11,37 @@ type SearchParams = {
 
 async function getCharacters() {
   const res = await fetch("https://rickandmortyapi.com/api/character", {
-    cache: "no-store", // SSR always fresh (SEO-safe)
+    cache: "no-store",
   });
 
   if (!res.ok) throw new Error("Failed to fetch characters");
-
   return res.json();
 }
 
 export default async function Page({
   searchParams,
 }: {
-  searchParams: SearchParams;
+  searchParams: Promise<SearchParams>;
 }) {
+  const sp = await searchParams; // ✅ unwrap promise
+
   const data = await getCharacters();
 
+  const initialCharacters: Character[] = data.results;
+  const initialNextPage: number | null = data.info.next;
+
+  const search = sp.search ?? "";
+  const sort = sp.sort ?? "name-asc";
+
   return (
-    <CharacterListClient
-      initialCharacters={data.results}
-      initialNextPage={data.info.next}
-      search={searchParams.search ?? ""}
-      sort={searchParams.sort ?? "name-asc"}
-    />
+    <>
+      <CharacterGridSSR
+        initialCharacters={initialCharacters}
+        search={search}
+        sort={sort}
+      />
+
+      <CharacterListClient initialNextPage={initialNextPage} />
+    </>
   );
 }

@@ -4,10 +4,8 @@ import { NetworkStatus } from "@apollo/client";
 import { useQuery } from "@apollo/client/react";
 import Link from "next/link";
 import { GET_CHARACTERS } from "@/graphql/queries";
-import CharacterSkeleton from "@/components/CharacterSkeleton";
 import ErrorState from "@/components/ErrorState";
-import EmptyState from "@/components/EmptyState";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 /* SORT TYPE */
 export type SortOption = "name-asc" | "name-desc" | "status" | "species";
@@ -28,121 +26,77 @@ export type CharactersData = {
   };
 };
 
-type CharacterListProps = {
-  initialCharacters: Character[];
+type Props = {
   initialNextPage: number | null;
-  search: string;
-  sort: SortOption;
 };
 
-export default function CharacterListClient({
-  initialCharacters,
-  initialNextPage,
-  search,
-  sort,
-}: CharacterListProps) {
-
-  // SSR DATA STATE
-  const [characters, setCharacters] = useState<Character[]>(initialCharacters);
+export default function CharacterListClient({ initialNextPage }: Props) {
+  const [extraCharacters, setExtraCharacters] = useState<Character[]>([]);
   const [nextPage, setNextPage] = useState<number | null>(initialNextPage);
 
-  const {
-    fetchMore,
-    networkStatus,
-    refetch,
-    error,
-  } = useQuery<CharactersData>(GET_CHARACTERS, {
-    variables: { page: 1 },
-    notifyOnNetworkStatusChange: true,
-    skip: true, // ⛔ prevent initial client fetch (SSR already has data)
-  });
+  const { fetchMore, networkStatus, refetch, error } = useQuery<CharactersData>(
+    GET_CHARACTERS,
+    {
+      variables: { page: 1 },
+      notifyOnNetworkStatusChange: true,
+      skip: true, // ⛔ don't run initial query
+    }
+  );
 
   const isFetchingMore = networkStatus === NetworkStatus.fetchMore;
 
-  /* ERROR STATE */
   if (error) {
     return (
       <ErrorState
-        message="Failed to load characters. Please check your connection."
+        message="Failed to load more characters."
         onRetry={() => refetch()}
       />
     );
   }
 
-  /* FILTER + SORT */
-  const filteredCharacters = characters
-    .filter((char) =>
-      char.name.toLowerCase().includes(search.toLowerCase())
-    )
-    .sort((a, b) => {
-      switch (sort) {
-        case "name-asc":
-          return a.name.localeCompare(b.name);
-        case "name-desc":
-          return b.name.localeCompare(a.name);
-        case "status": {
-          const statusOrder: Record<string, number> = {
-            Alive: 0,
-            Dead: 1,
-            unknown: 2,
-          };
-          return statusOrder[a.status] - statusOrder[b.status];
-        }
-        case "species":
-          return a.species.localeCompare(b.species);
-        default:
-          return 0;
-      }
-    });
-
   return (
     <>
-      {/* CHARACTER GRID */}
-      <div className="flex flex-wrap justify-center gap-6 px-4 py-10">
-        {filteredCharacters.map((char) => (
-          <Link key={char.id} href={`/character/${char.id}`}>
-            <div className="group w-40 bg-white dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-xl shadow-md hover:shadow-xl transition-all duration-200 hover:-translate-y-1 cursor-pointer overflow-hidden">
-              <div className="relative w-full h-40">
-                <img
-                  src={char.image}
-                  alt={char.name}
-                  className="w-full h-full object-cover"
-                />
+      {/* EXTRA LOADED CHARACTERS ONLY */}
+      {extraCharacters.length > 0 && (
+        <div className="flex flex-wrap justify-center gap-6 px-4 pb-10">
+          {extraCharacters.map((char) => (
+            <Link key={char.id} href={`/character/${char.id}`}>
+              <div className="group w-40 bg-white dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-xl shadow-md hover:shadow-xl transition-all duration-200 hover:-translate-y-1 cursor-pointer overflow-hidden">
+                <div className="relative w-full h-40">
+                  <img
+                    src={char.image}
+                    alt={char.name}
+                    className="w-full h-full object-cover"
+                  />
 
-                <span
-                  className={`absolute top-2 right-2 px-2 py-0.5 text-xs rounded-full font-medium backdrop-blur
-                    ${
-                      char.status === "Alive"
-                        ? "bg-green-500/20 text-green-400"
-                        : char.status === "Dead"
-                        ? "bg-red-500/20 text-red-400"
-                        : "bg-gray-500/20 text-gray-300"
-                    }
-                  `}
-                >
-                  {char.status}
-                </span>
+                  <span
+                    className={`absolute top-2 right-2 px-2 py-0.5 text-xs rounded-full font-medium backdrop-blur
+                      ${
+                        char.status === "Alive"
+                          ? "bg-green-500/20 text-green-400"
+                          : char.status === "Dead"
+                          ? "bg-red-500/20 text-red-400"
+                          : "bg-gray-500/20 text-gray-300"
+                      }
+                    `}
+                  >
+                    {char.status}
+                  </span>
+                </div>
+
+                <div className="p-3 text-center">
+                  <h3 className="font-semibold text-sm text-gray-800 dark:text-white truncate">
+                    {char.name}
+                  </h3>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    {char.species}
+                  </p>
+                </div>
               </div>
-
-              <div className="p-3 text-center">
-                <h3 className="font-semibold text-sm text-gray-800 dark:text-white truncate">
-                  {char.name}
-                </h3>
-                <p className="text-xs text-gray-500 dark:text-gray-400">
-                  {char.species}
-                </p>
-              </div>
-            </div>
-          </Link>
-        ))}
-
-        {filteredCharacters.length === 0 && (
-          <EmptyState
-            title="No characters found"
-            description="Try a different name or clear your filters."
-          />
-        )}
-      </div>
+            </Link>
+          ))}
+        </div>
+      )}
 
       {/* LOAD MORE BUTTON */}
       {nextPage && (
@@ -157,7 +111,7 @@ export default function CharacterListClient({
               });
 
               if (data?.characters) {
-                setCharacters((prev) => [
+                setExtraCharacters((prev) => [
                   ...prev,
                   ...data.characters.results,
                 ]);
